@@ -1,5 +1,6 @@
 package com.example.sebwave.features.dashboard.presentation.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -12,12 +13,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sebwave.R
+import com.example.sebwave.core.ui.theme.*
 import com.example.sebwave.features.dashboard.domain.entities.DashboardStats
 
 @Composable
@@ -26,24 +31,28 @@ fun StatsSection(stats: DashboardStats) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Green Gradient Card
         Card(
             modifier = Modifier
-                .weight(1.5f)
-                .height(200.dp),
-            shape = RoundedCornerShape(24.dp),
+                .weight(1.4f)
+                .height(210.dp),
+            shape = RoundedCornerShape(28.dp),
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        Brush.verticalGradient(
-                            listOf(Color(0xFF2E7D32), Color(0xFF1B5E20))
+                        Brush.radialGradient(
+                            colorStops = arrayOf(
+                                0.25f to Color(0xFF2FA600),
+                                1.0f to Color(0xFF113C00)
+                            ),
+                            center = Offset(0f, 0f),
+                            radius = 900f
                         )
                     )
                     .padding(20.dp)
             ) {
-                Column {
+                Column(verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxHeight()) {
                     StatItem(
                         icon = Icons.Default.DirectionsCar,
                         value = stats.processedVehicles,
@@ -61,11 +70,11 @@ fun StatsSection(stats: DashboardStats) {
             }
         }
 
-        // Semaphores summary card
+        // Card Derecha: Resumen de semáforos (Fondo Blanco)
         Card(
             modifier = Modifier
                 .weight(1f)
-                .height(200.dp),
+                .height(210.dp),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -79,21 +88,35 @@ fun StatsSection(stats: DashboardStats) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "${stats.activeSemaphores}/${stats.totalSemaphores}",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        fontSize = 22.sp
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        ),
+                        fontSize = 28.sp,
+                        letterSpacing = (-1).sp
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Column {
-                        Box(modifier = Modifier.size(8.dp, 2.dp).background(Color.Red))
-                        Box(modifier = Modifier.size(8.dp, 2.dp).background(Color.Yellow))
-                        Box(modifier = Modifier.size(8.dp, 2.dp).background(Color.Green))
-                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "Logo",
+
+                        modifier = Modifier
+                            .size(32.dp)
+                            .offset(y = (-1).dp)
+                    )
                 }
-                Text("Semáforos en la zona", fontSize = 10.sp, color = Color.Gray)
+                Text(
+                    text = "Semáforos en la zona", 
+                    fontSize = 11.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = (-1).sp
+                )
                 
-                SemaphoreCountItem(Color.Red, stats.redSemaphores, "Rojos")
-                SemaphoreCountItem(Color.Yellow, stats.yellowSemaphores, "Amarillos")
-                SemaphoreCountItem(Color.Green, stats.greenSemaphores, "Verdes")
+                // Usando los colores semánticos del tema: trafficRed, trafficAmber, trafficGreen
+                SemaphoreCountItem(trafficRed, stats.redSemaphores, "Rojo")
+                SemaphoreCountItem(trafficAmber, stats.yellowSemaphores, "Amarillo")
+                SemaphoreCountItem(trafficGreen, stats.greenSemaphores, "Verde")
             }
         }
     }
@@ -102,17 +125,15 @@ fun StatsSection(stats: DashboardStats) {
 @Composable
 private fun StatItem(icon: ImageVector, value: String, label: String, subLabel: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
+        Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(36.dp))
         Spacer(modifier = Modifier.width(12.dp))
         Column {
-            Text(label, color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
+            Text(label, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
             Row(verticalAlignment = Alignment.Bottom) {
-                Text(value, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                if (value.contains("K")) {
-                   Text("K", color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(bottom = 4.dp))
-                }
+                Text(value, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+
             }
-            Text(subLabel, color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
+            Text(subLabel, color = Color.White.copy(alpha = 0.8f), fontSize = 10.sp)
         }
     }
 }
@@ -122,14 +143,24 @@ private fun SemaphoreCountItem(color: Color, count: Int, label: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
-                .size(24.dp)
+                .size(32.dp)
                 .clip(CircleShape)
                 .background(color),
             contentAlignment = Alignment.Center
         ) {
-            Text(count.toString(), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Text(
+                count.toString(), 
+                color = if (color == trafficAmber) Color.Black else Color.White, 
+                fontSize = 14.sp, 
+                fontWeight = FontWeight.Bold
+            )
         }
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(label, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = label, 
+            fontSize = 15.sp, 
+            fontWeight = FontWeight.Bold, 
+            color = Color.Black
+        )
     }
 }

@@ -34,9 +34,9 @@ fun SemaphoreCard(semaphore: Semaphore) {
     }
 
     val statusContainerColor = when(semaphore.status) {
-        SemaphoreStatus.CONECTADO -> Color(0xFFE3F2FD)
-        SemaphoreStatus.FALLIDO -> Color(0xFFEEEEEE)
-        SemaphoreStatus.DESCONECTADO -> Color(0xFFFFF3E0)
+        SemaphoreStatus.CONECTADO -> trafficGreenContainer
+        SemaphoreStatus.FALLIDO -> trafficRedContainer
+        SemaphoreStatus.DESCONECTADO -> trafficAmberContainer
     }
 
     Card(
@@ -56,7 +56,10 @@ fun SemaphoreCard(semaphore: Semaphore) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = semaphore.name,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = scrimLight
+                        )
                     )
                 }
                 Surface(
@@ -68,21 +71,14 @@ fun SemaphoreCard(semaphore: Semaphore) {
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = when(semaphore.status) {
-                            SemaphoreStatus.CONECTADO -> Color(0xFF2196F3)
-                            else -> Color.Gray
-                        }
+                        color = statusColor
                     )
                 }
             }
             
             Text(
                 text = semaphore.street,
-                color = when(semaphore.status) {
-                    SemaphoreStatus.CONECTADO -> Color(0xFF2E7D32)
-                    SemaphoreStatus.FALLIDO -> Color(0xFFC62828)
-                    SemaphoreStatus.DESCONECTADO -> Color(0xFFEF6C00)
-                },
+                color = statusColor,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -93,25 +89,38 @@ fun SemaphoreCard(semaphore: Semaphore) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Densidad vehicular", color = Color.Gray, fontSize = 12.sp)
+                    Text(
+                        text = "Densidad vehicular", 
+                        color = scrimLight.copy(alpha = 0.6f), 
+                        fontSize = 12.sp
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("${semaphore.currentCongestion}%", fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "${semaphore.currentCongestion}%", 
+                        fontWeight = FontWeight.Bold,
+                        color = scrimLight
+                    )
                 }
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.AccessTime, 
                         contentDescription = null, 
-                        tint = when(semaphore.status) {
-                            SemaphoreStatus.FALLIDO -> Color.Red
-                            else -> statusColor
-                        },
+                        tint = statusColor,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Column {
-                        Text("Verde activo", fontSize = 8.sp, color = Color.Gray)
-                        Text("${semaphore.currentGreenTime}s", fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "Verde activo", 
+                            fontSize = 8.sp, 
+                            color = scrimLight.copy(alpha = 0.6f)
+                        )
+                        Text(
+                            text = "${semaphore.currentGreenTime}s",
+                            fontWeight = FontWeight.Bold,
+                            color = scrimLight
+                        )
                     }
                 }
             }

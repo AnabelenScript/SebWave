@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.foundation)
     implementation(libs.androidx.compose.ui.text)
+    implementation(libs.play.services.maps)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -95,6 +96,11 @@ dependencies {
 
     // Google Fonts
     implementation(libs.androidx.compose.ui.text.google.fonts)
+    // Google Maps Compose
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+
+    // Para colorear los markers con DrawableCompat
+    implementation("androidx.core:core-ktx:1.13.1")
 
     // Firebase (Comentado temporalmente hasta tener el archivo json)
     // implementation(platform("com.google.firebase:firebase-bom:34.10.0"))

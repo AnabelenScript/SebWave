@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sebwave.R
+import com.example.sebwave.core.ui.theme.*
 
 @Composable
 fun IntersectionsHeader() {
@@ -23,7 +25,9 @@ fun IntersectionsHeader() {
     ) {
         Text(
             text = "Intersecciones",
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = Color.Black,
+                fontWeight = FontWeight.Bold)
         )
         OutlinedButton(
             onClick = { /* TODO */ },
