@@ -13,11 +13,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sebwave.R
 import com.example.sebwave.core.ui.theme.*
 
 @Composable
-fun IntersectionsHeader() {
+fun IntersectionsHeader(
+    onAddSemaphore: () -> Unit = {}
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -30,14 +31,14 @@ fun IntersectionsHeader() {
                 fontWeight = FontWeight.Bold)
         )
         OutlinedButton(
-            onClick = { /* TODO */ },
+            onClick = onAddSemaphore,
             shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(1.dp, Color(0xFF4CAF50)),
+            border = BorderStroke(1.dp, primaryLight),
             contentPadding = PaddingValues(horizontal = 12.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = null, tint = Color(0xFF4CAF50))
+            Icon(Icons.Default.Add, contentDescription = null, tint = primaryLight)
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Nuevo semáforo", color = Color(0xFF4CAF50), fontSize = 14.sp)
+            Text("Nuevo semáforo", color = primaryLight, fontSize = 14.sp)
         }
     }
 }

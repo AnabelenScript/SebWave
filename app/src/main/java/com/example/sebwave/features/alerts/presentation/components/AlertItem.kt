@@ -10,13 +10,11 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccessTime
-import androidx.compose.material.icons.outlined.DirectionsCar
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.NotificationImportant
-import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,14 +23,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.example.sebwave.core.ui.theme.primaryLight
-import com.example.sebwave.core.ui.theme.trafficAmber
-import com.example.sebwave.core.ui.theme.trafficRed
+import com.example.sebwave.core.ui.theme.*
 import com.example.sebwave.features.alerts.domain.entities.Alert
 import com.example.sebwave.features.alerts.domain.entities.AlertStatus
 import com.example.sebwave.features.alerts.domain.entities.AlertType
@@ -48,161 +45,156 @@ fun AlertItem(
 ) {
     val context = LocalContext.current
 
-    val icon = when (alert.type) {
-        AlertType.SIRENA_DETECTADA -> Icons.Outlined.NotificationImportant
-        AlertType.SENSOR_DESCONECTADO -> Icons.Outlined.WarningAmber
-        AlertType.ALTA_CONGESTION -> Icons.Outlined.DirectionsCar
-    }
-
     val accentColor = when (alert.type) {
         AlertType.SIRENA_DETECTADA -> trafficRed
         AlertType.SENSOR_DESCONECTADO -> trafficAmber
         AlertType.ALTA_CONGESTION -> primaryLight
     }
 
+    val accentContainerColor = when (alert.type) {
+        AlertType.SIRENA_DETECTADA -> trafficRedContainer
+        AlertType.SENSOR_DESCONECTADO -> trafficAmberContainer
+        AlertType.ALTA_CONGESTION -> primaryContainerLight
+    }
+
+    val typeLabel = when (alert.type) {
+        AlertType.SIRENA_DETECTADA -> "Emergencia"
+        AlertType.SENSOR_DESCONECTADO -> "Fallo"
+        AlertType.ALTA_CONGESTION -> "Congestión"
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
             .clickable { onAlertClicked(context, alert) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-        ) {
-            // Barra lateral de color por tipo
-            Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .fillMaxHeight()
-                    .background(accentColor)
-            )
-
-            Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Header: Dot + Title + Badge
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Row(
-                    verticalAlignment = Alignment.Top
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
                 ) {
-                    // Icono con fondo circular sutil
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
-                            .background(
-                                accentColor.copy(alpha = 0.12f),
-                                RoundedCornerShape(12.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = accentColor,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
+                            .size(10.dp)
+                            .clip(CircleShape)
+                            .background(accentColor)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = alert.title,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = scrimLight,
+                            fontSize = 16.sp
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                
+                Surface(
+                    color = if (alert.status == AlertStatus.RESOLVED)
+                        surfaceVariantLight else accentContainerColor,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = if (alert.status == AlertStatus.RESOLVED) "Resuelta" else typeLabel,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (alert.status == AlertStatus.RESOLVED)
+                            onSurfaceVariantLight else accentColor
+                    )
+                }
+            }
 
-                    Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = alert.title,
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black
-                                ),
-                                modifier = Modifier.weight(1f, fill = false)
-                            )
+            // Description
+            Text(
+                text = alert.description,
+                color = if (alert.status == AlertStatus.RESOLVED) Color.Gray else scrimLight.copy(alpha = 0.7f),
+                modifier = Modifier.fillMaxWidth(),
+                lineHeight = 20.sp,
+                fontSize = 14.sp
+            )
 
-                            // Etiqueta "Resuelta"
-                            if (alert.status == AlertStatus.RESOLVED) {
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Surface(
-                                    color = Color(0xFFF5F5F5),
-                                    shape = RoundedCornerShape(6.dp)
-                                ) {
-                                    Text(
-                                        text = "Resuelta",
-                                        modifier = Modifier.padding(
-                                            horizontal = 8.dp,
-                                            vertical = 2.dp
-                                        ),
-                                        style = MaterialTheme.typography.labelSmall.copy(
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = Color.Gray
-                                        )
-                                    )
-                                }
-                            }
-                        }
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            HorizontalDivider(color = Color(0xFFF5F5F5), thickness = 1.dp)
+            
+            Spacer(modifier = Modifier.height(12.dp))
 
-                        Spacer(modifier = Modifier.height(4.dp))
+            // Footer: Location and Time
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Location
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(0.6f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.LocationOn,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = alert.location,
+                        color = Color.Gray,
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
 
-                        Text(
-                            text = alert.description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray,
-                            lineHeight = 20.sp
-                        )
+                Spacer(modifier = Modifier.width(8.dp))
 
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // Metadata: time + location
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Outlined.AccessTime,
-                                contentDescription = null,
-                                tint = Color.Gray,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Text(
-                                text = " ${alert.timeAgo}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.Gray
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("|", color = Color.LightGray, fontSize = 12.sp)
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Icon(
-                                imageVector = Icons.Outlined.LocationOn,
-                                contentDescription = null,
-                                tint = Color.Gray,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Text(
-                                text = " ${alert.location}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.Gray
-                            )
-                        }
-                    }
+                // Time
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.wrapContentWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AccessTime,
+                        contentDescription = null,
+                        tint = accentColor.copy(alpha = 0.8f),
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = alert.timeAgo,
+                        color = scrimLight.copy(alpha = 0.8f),
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 12.sp,
+                        maxLines = 1
+                    )
                 }
             }
         }
     }
 }
 
-/**
- * Muestra un Toast y una notificación push al hacer click en una alerta.
- */
 private fun onAlertClicked(context: Context, alert: Alert) {
-    // Toast
     Toast.makeText(
         context,
         "⚠️ ${alert.title}: ${alert.description}",
         Toast.LENGTH_LONG
     ).show()
 
-    // Notificación push
     createNotificationChannel(context)
     showNotification(context, alert)
 }
@@ -222,7 +214,6 @@ private fun createNotificationChannel(context: Context) {
 }
 
 private fun showNotification(context: Context, alert: Alert) {
-    // Verificar permiso en Android 13+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         if (ContextCompat.checkSelfPermission(
                 context,

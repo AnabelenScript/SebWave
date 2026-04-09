@@ -69,7 +69,7 @@ fun AlertScreen(
                     AlertFilter.RESOLVED to (uiState.stats.total - (uiState.stats.emergencies + uiState.stats.failures + uiState.stats.congestions))
                 )
             )
-        }congestions
+        }
 
         // Lista de alertas
         items(uiState.alerts) { alert ->
